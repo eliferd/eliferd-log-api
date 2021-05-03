@@ -5,6 +5,7 @@ import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Auth } from './models/eauth.model';
 import { UserRoleEnum } from './models/euserrole.model';
+import { db } from './config/database';
 
 class App {
     public app: express.Application;
@@ -15,6 +16,8 @@ class App {
     };
 
     constructor() {
+      db.authenticate().then(() => console.log('SEQUELIZE - Authentication success.'))
+        .catch(e => console.log('SEQUELIZE - Authentication failed\n', e))
       this.app = express();
       this.config();
       this.routePrv.routes(this.app);

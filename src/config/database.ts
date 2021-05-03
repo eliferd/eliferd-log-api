@@ -9,5 +9,6 @@ export const db = new Sequelize({
   database: 'eliferd_log_api',
   dialect: 'postgres',
   username: 'elogapi',
+  port: 5432,
   password: process.env.ELOGAPI_PWD || '0000'
 });
