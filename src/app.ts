@@ -6,13 +6,18 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import { Auth } from './models/eauth.model';
 import { UserRoleEnum } from './models/euserrole.model';
 import { db } from './config/database';
+import * as cors from 'cors';
+import * as helmet from 'helmet';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 class App {
     public app: express.Application;
     public routePrv: Routes = new Routes();
     private jwtOPTS = {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.LOGAPI_JWT_SECRET || 'logapi_secret_4795174'
+      secretOrKey: process.env.LOGAPI_JWT_SECRET
     };
 
     constructor() {
@@ -24,10 +29,16 @@ class App {
     }
 
     private config() {
-      this.app.use(express.json());
       this.app.use(express.urlencoded({ extended: true }));
+      this.app.use(express.json());
       this.app.use(passport.initialize());
-      passport.use(new JwtStrategy(this.jwtOPTS, (jwtPayload: any, done: any) => {
+      this.app.use(helmet());
+      this.app.use(cors({
+        credentials: true,
+        origin: true,
+        methods: ['GET', 'POST', 'OPTIONS', 'HEAD']
+      }));
+      passport.use('jwt', new JwtStrategy(this.jwtOPTS, (jwtPayload: any, done: any) => {
         Auth.findOne({
           where: {
             id_user: jwtPayload.id_user
@@ -41,7 +52,7 @@ class App {
                 return done(null, foundUser);
 
               case UserRoleEnum.APPLICATION:
-                return done(new Error('Vous ,\'êtes pas autorisé à utiliser les JWT.'), false);
+                return done(new Error('Vous n\'êtes pas autorisé à utiliser les JWT.'), false);
 
               default:
                 return done(new Error('Rôle inconnu.'), false);

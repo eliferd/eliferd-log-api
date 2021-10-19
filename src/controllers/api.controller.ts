@@ -9,16 +9,14 @@ import { Auth } from '../models/eauth.model';
 import { UserRoleEnum } from '../models/euserrole.model';
 
 export class ApiController {
-  private errCallback = (err: Error, res: Response) => res.status(500).json({ err: err.message });
-
   public listLogLevels(req: Request, res: Response) {
     LogLevels.findAll<LogLevels>().then((logLvl: Array<LogLevels>) => res.json(logLvl))
-      .catch((err: Error) => this.errCallback(err, res));
+      .catch((err: Error) => res.status(500).json({ err: err.message }));
   }
 
   public listLogProviders(req: Request, res: Response) {
     LogProviders.findAll<LogProviders>().then((logProviders: Array<LogProviders>) => res.json(logProviders))
-      .catch((err: Error) => this.errCallback(err, res));
+      .catch((err: Error) => res.status(500).json({ err: err.message }));
   }
 
   public printLogs(req: Request, res: Response) {
@@ -43,8 +41,8 @@ export class ApiController {
         str_message: message,
         print_date: dbUtils.now
       }).then(() => res.status(200).json({ succes: true }))
-        .catch((err: Error) => this.errCallback(err, res));
-    }).catch((err: Error) => this.errCallback(err, res));
+        .catch((err: Error) => res.status(500).json({ err: err.message }));
+    }).catch((err: Error) => res.status(500).json({ err: err.message }));
   }
 
   public fetchAppLogs(req: Request, res: Response) {
@@ -70,8 +68,8 @@ export class ApiController {
         const mappedLogs = logs.map(({ id_log, id_log_provider, id_log_level, str_message, print_date }) =>
           ({ id_log, id_log_provider, id_log_level, str_message, str_provider_name, str_level: logLevels.find(lvl => lvl.id_log_level === id_log_level).str_name, print_date: Date.parse(print_date.toString()) }));
         res.status(200).json(mappedLogs);
-      }).catch((err: Error) => this.errCallback(err, res));
-    }).catch((err: Error) => this.errCallback(err, res));
+      }).catch((err: Error) => res.status(500).json({ err: err.message }));
+    }).catch((err: Error) => res.status(500).json({ err: err.message }));
   }
 
   public login(req: Request, res: Response) {
@@ -109,6 +107,6 @@ export class ApiController {
             break;
         }
       }
-    }).catch((err: Error) => this.errCallback(err, res));
+    }).catch((err: Error) => res.status(500).json({ err: err.message }));
   }
 }
